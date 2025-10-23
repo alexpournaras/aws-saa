@@ -1,9 +1,32 @@
-Billing and Cost Management
+# ☁️ AWS Billing and Cost Management
 
-to enable for users, in root account go to menu in account, and in there enable access to billing for users
+## 🔐 Enabling Billing Access for IAM Users
+To allow IAM users to view billing information:
+1. Sign in to the **root account**.
+2. Go to **Account Settings** from the main menu.
+3. Enable **Billing Access for IAM users** ✅.
 
-From Bills we can select month and see spending for each service, for each region its monthly cost.
+---
 
-From Budgets we can se a notification when a thresshold is passed.
+## 💰 Viewing Bills
+In the **Bills** section:
+- Select a **specific month** 📅 to review your spending.
+- View **costs per AWS service** and **per region** 🌍.
+- Analyze your **monthly usage trends** for better cost control.
 
-Also there is Free tier page where we see current requests and forecast for each service
+---
+
+## 📊 Budgets and Alerts
+Under the **Budgets** section:
+- You can **set custom budgets** for your AWS usage or cost.
+- Configure **notifications** 🔔 to alert you when a **threshold** is reached or exceeded.
+- Helps in maintaining **financial awareness** and **avoiding surprises** in billing.
+
+---
+
+## 🆓 Free Tier Usage
+The **Free Tier** page provides:
+- An overview of your **current requests** and **usage forecasts** 📈.
+- A breakdown per service to help you **stay within free limits** 🧮.
+- A clear view of when you might start **incurring charges**.
+

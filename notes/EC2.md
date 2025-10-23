@@ -1,110 +1,153 @@
-Amazon EC2
+# ⚙️ Amazon EC2 (Elastic Compute Cloud)
 
-Elastic Compute Cloud
-Infrastructure as a Service
+## ☁️ Overview
+**Amazon EC2 (Elastic Compute Cloud)** is an **Infrastructure as a Service (IaaS)** offering that provides scalable virtual servers in the cloud.
 
-* Renting virtual machines (EC2)
-* Storing data on virtual drives (EBS)
-* Distributing load across machines (ELB)
-* Scaling the services using an auto-scaling group (ASG)
+### 💡 Key Features
+- 💻 Rent virtual machines (**EC2 Instances**)
+- 💾 Store data on virtual drives (**EBS**)
+- ⚖️ Distribute traffic across servers (**ELB**)
+- 🚀 Scale automatically with **Auto Scaling Groups (ASG)**
 
-Configuration
-* OS: linux, windows, macos
-* cpu
-* ram
-* storage:
-    - network-attached: EBS & EFS
-    - hardware (EC2 instance store)
-* Network: speed, public IP address
-* Firewall rules: security group
-* Bootstrap script configure at first launch: EC2 User Data
+---
 
-With EC2 User Data:
-bootrap our instances using EC2 User Data script
-* execute commands when machine starts/automate boot. example
-    - installing updates
-    - installing software
-    - download etc etc
+## 🧩 Configuration Options
+When launching an EC2 instance, you can configure:
 
-AMI:OS  image
+- 🧠 **Operating System:** Linux, Windows, or macOS  
+- ⚙️ **Compute Resources:** CPU and RAM  
+- 💽 **Storage:**
+  - Network-attached: **EBS** (Elastic Block Store) & **EFS** (Elastic File System)
+  - Local (hardware-based): **EC2 Instance Store**
+- 🌐 **Networking:** Speed and Public IP Address  
+- 🔒 **Firewall Rules:** Managed through **Security Groups**
+- 🧰 **Bootstrap Configuration:** Use **EC2 User Data** to run setup scripts at first boot
 
-key pair : RSA type and .pem files
+### 📝 EC2 User Data
+Bootstrap your instance at startup by providing a script that:
+- Installs updates and packages
+- Downloads dependencies or configurations
+- Automates initial setup tasks
 
-when instance is stopped, you dont pay for it
+---
 
-when restarting the instance the public ip might change!!!
+## 📦 Key Concepts
 
-instance types:
-general purpose => balanced
-    - compute, memory, networking
-    example (t2 micro)
+### 🖼️ Amazon Machine Image (AMI)
+A preconfigured **OS image** used to launch EC2 instances.
 
-compute optimized => high cpu => instance classes starts with C
-    - batch processing workloads
-    - media transcoding
-    - high performance web servers
-    - high performance computing (hpc)
-    -sientific modeling & machine learning
-    - dedicated gaming servers
-
-memory optimized => process large data sets in memory
-    use the R in front of instances names
-    - high performance relational-non/relational databases
-    - distrubuted web scale cache stores
-    - in-memory databases optimized for Business instelligence
-    - applications performing real time processing of big unstructured data
-
-storage optimized => starts with I or D or H1
-    => high read and write to large data sets on storage
-    - high frequency online transaction processign systems OLTP
-    - relationanl & nosql databases
-    - cache for inmemory databases for example redis
-    - data warehousing applications
-    - distrubuted file systems
-
-accelerated computing
-hpt otpimized
-instance features
-measuring instance performance
-
-m5.2xlarge
-m = instance class
-5 = generation/version
-2xlarge = size of instance for that class
-
-security groups = firewall
-only contain allow rules
-security groups rules can refernce by IP or by other security group
-locked down to a region/vpc combination
-is OUTSIDE of the EC2
-
-timeout = security group issue
-connection refused = application error
-
-all inbound traffic is blocked
-all outbound traffic is authorised
-
-ports:
-22 = ssh (secure shell)
-21 = FTP file transfer protocol
-22 = STFP secure >> (its happeing with ssh thats why 22)
-80 = HTTP
-443 = HTTPS
-3389 = RDP (remote destkop protocol for windows)
-
-chmod 044 key.pem
+### 🔑 Key Pair
+Used for **SSH authentication** (typically `.pem` files with RSA keys).  
+Example:
+```bash
+chmod 400 key.pem
 ssh -i key.pem ec2-user@3.250.26.200
+```
 
-EC2 Instance Connect = browser based SSH inside the ec2 instance (needs the ssh rule of course)
+---
 
-never configure aws inside the ec2 instance
-instance -> actions -> security -> modify IAM role
-then if we give permissions, we can do:
-aws iam list-users
+## 🛑 Stopping & Restarting Instances
+- When an instance is **stopped**, you **don’t pay** for compute time.
+- Upon **restart**, the **public IP address may change** ⚠️.
 
+---
 
+## 🧮 Instance Types
 
+| Category | Description | Use Cases | Example |
+|-----------|--------------|-----------|----------|
+| 🧩 **General Purpose** | Balanced compute, memory, and networking | Web servers, development environments | `t2.micro` |
+| ⚡ **Compute Optimized** | High CPU performance | Batch processing, media transcoding, High Performance Computing (HPC), Scientific modeling, machine learning, gaming servers | Start with `C` => `c5.large` |
+| 🧠 **Memory Optimized** | Large in-memory datasets | Databases, caching, analytics, Business Intelligence, in-memory databases | Start with `R` => `r5.large` |
+| 💾 **Storage Optimized** | High read/write throughput from storage | Online Transaction Processing (OLTP), Relational & NoSQL databases, cache (Redis), data warehousing, distributed file systems | Start with `I or D or H1` => `i3.large` |
+| 🧮 **Accelerated Computing** | GPU or FPGA-based | Machine learning, HPC | `p3.2xlarge` |
 
+---
 
+## 🔍 Instance Naming Convention
+Example: **m5.2xlarge**
+- `m` → Instance class  
+- `5` → Generation/version  
+- `2xlarge` → Instance size for that class
+
+---
+
+## 🔐 Security Groups
+Act as **virtual firewalls** controlling inbound and outbound traffic.
+
+- Contain **only allow rules**
+- Can reference **IP addresses** or **other security groups**
+- Are tied to a specific **region/VPC**
+- Operate **outside the EC2 instance**
+
+### 🧱 Rules
+- All **inbound** traffic is **blocked** by default
+- All **outbound** traffic is **allowed**
+
+### 🧾 Common Ports
+| Port | Protocol | Description |
+|------|-----------|-------------|
+| 22 | SSH | Secure Shell (Linux) |
+| 21 | FTP | File Transfer Protocol |
+| 22 | SFTP | Secure File Transfer (via SSH) |
+| 80 | HTTP | Web traffic |
+| 443 | HTTPS | Secure web traffic |
+| 3389 | RDP | Remote Desktop (Windows) |
+
+⚠️ **Timeout** → likely a Security Group issue  
+⚠️ **Connection refused** → likely an application-level issue
+
+---
+
+## 🌐 EC2 Instance Connect
+Browser-based SSH access directly from the AWS Console (requires proper SSH rule in the Security Group).
+
+---
+
+## 🚫 Best Practices
+- **Never configure AWS credentials directly** inside an EC2 instance.  
+  Instead, assign permissions through **IAM roles**:
+  - `Instance → Actions → Security → Modify IAM Role`
+  - Example command after giving permissions:
+    ```bash
+    aws iam list-users
+    ```
+
+---
+
+## 💸 EC2 Pricing Models
+
+| Type | Description | Best For | Notes |
+|------|--------------|----------|-------|
+| 🕐 **On-Demand** | Pay per second (after 1st minute) | Short, predictable workloads | Highest cost, uninterrupted |
+| 🗓️ **Reserved Instances (1 or 3 years)** | Prepaid for specific instance type, region, and OS | Long-term workloads | Buy/sell in marketplace |
+| 🔄 **Convertible Reserved** | Flexibility to change instance type, OS, or scope | Long workloads needing flexibility | 1 or 3 years |
+| 💰 **Savings Plans (1 or 3 years)** | Commit to usage ($/hour) | Consistent workloads | Beyond commitment => On-demand pricing, locked to region and specific family type |
+| ⚡ **Spot Instances** | Up to 90% cheaper | Fault-tolerant, flexible workloads | Can be interrupted anytime |
+| 🧱 **Dedicated Hosts** | Entire physical server | Compliance or license restrictions | Most expensive, Bring Your Own License (BYOL) |
+| 🔒 **Dedicated Instances** | Hardware not shared with other customers | Security or compliance |  |
+| 📍 **Capacity Reservations** | Reserve capacity in a specific AZ | On-demand flexibility | Pay for reserved capacity and use whenever we want |
+
+---
+
+### 🌀 Spot Instances in Detail
+- Ideal for **batch jobs**, **data analysis**, **image processing**, or **distributed workloads**
+- Not suitable for **critical jobs** or **databases**
+- If the **spot price** exceeds your bid, you get a **2-minute warning** to stop or terminate the instance.⏳
+- Create them with **Spot Requests**:
+  - One-time: When acquire instance: ends the request.
+  - Persistent: When instance is interrupted, the Spot Request will be recreated.
+  - Cancel of Spot Requests will **NOT** stop instances. May fall in a **loop**!
+- **Spot Blocks:** Reserve for 1–6 hours (guaranteed availability)
+
+### 🧠 Spot Fleet
+* Sets of Spot Instances + (optional) On-demand Instances.
+* Used to automatically request Spot Instances with the lowest price.
+
+#### Strategies:
+- **LowestPrice** → Cheapest pool, cost-optimized, short workloads  
+- **Diversified** → Spread across pools, high availability, long workloads  
+- **CapacityOptimized** → Best capacity pool with highest capacity available  
+- **PriceCapacityOptimized** → Pools with highest capacity available -> then select the pool with the lowest price.
 
 
