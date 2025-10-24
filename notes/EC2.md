@@ -150,4 +150,98 @@ Browser-based SSH access directly from the AWS Console (requires proper SSH rule
 - **CapacityOptimized** → Best capacity pool with highest capacity available  
 - **PriceCapacityOptimized** → Pools with highest capacity available -> then select the pool with the lowest price.
 
+---
 
+## 🌐 EC2 Networking, Elastic IP
+
+#### 🧠 IPv6 and IoT
+IPv6 was designed to **solve address limitations** and support the **Internet of Things (IoT)** by providing a vastly larger address space.
+
+---
+
+### 🌍 Public vs 🏠 Private IPs
+
+#### 🌍 Public IP
+- **Unique across the entire Internet**
+- Can be **geolocated**
+
+#### 🏠 Private IP
+- **Unique only within a private network**
+- Different private networks can reuse the **same IP ranges**
+- Connect to the Internet through a **gateway or proxy**
+
+> 💡 When an EC2 instance restarts, its **public IP may change**.
+
+---
+
+## 🔁 Elastic IP
+An **Elastic IP (EIP)** solves the issue of changing public IPs.
+
+### ✅ Key Points:
+- Remains **persistent** even after EC2 restarts  
+- Can be **re-associated** with another instance easily  
+- Tied to a **private IP** within your VPC  
+- Useful for maintaining a **fixed endpoint** (e.g., web server)
+
+Example use case:
+> You can detach the Elastic IP from one EC2 instance and attach it to another, keeping the same public address.
+
+---
+
+## 🏗️ Placement Groups
+Define how instances are **physically placed** within the AWS infrastructure.  
+They help you control **latency**, **fault tolerance**, and **throughput**.
+
+### ⚡ Types of Placement Strategies
+
+| Type | Description | Best Use Cases |
+|------|--------------|----------------|
+| **Cluster** | Groups instances close together within a single AZ for low latency and high network speed. Enhanced Networking | Big data processing, high-performance computing, or applications needing very fast interconnects. |
+| **Spread** | Spreads instances across different hardware to reduce failure risk (max 7 instances per group per AZ). | Critical workloads needing high availability and fault tolerance. |
+| **Partition** | Distributes instances across multiple partitions (different racks/machines) within an AZ. Each partition is isolated from others. Up to 100 EC2 per group, up to 7 particions per AZ | Large-scale systems like Cassandra or Apache Kafka that need redundancy. |
+
+> 🧩 **AZ failure in a Cluster Group** means all instances in that group fail too.
+> Can get partition information from Metadata service.
+
+---
+
+## 🧩 Elastic Network Interfaces (ENI)
+
+An **Elastic Network Interface (ENI)** represents a **virtual network card** (like `eth0`, `eth1`, etc.) for your EC2 instances.
+
+### ⚙️ ENI Components
+- At least **one private IPv4 address**
+- Optional **Elastic IP (EIP)** or **public IPv4**
+- One or more **Security Groups**
+- A **MAC address**
+- Bound to a **specific Availability Zone**
+
+### 🔄 Flexibility
+- You can **attach or detach** ENIs between instances.
+
+### 🧠 Use Case Example
+> If an instance fails, launch a new one and attach the same ENI — traffic continues smoothly without reconfiguration.
+> Same for MAC-based licensing
+
+---
+
+## 💤 EC2 Hibernate
+
+### 🧩 What It Does
+EC2 Hibernate **preserves the in-memory (RAM) state** of the instance when it stops.
+
+When the instance starts again:
+- It **resumes quickly**, as the memory state is restored.
+- The **RAM contents** are saved to a file on the **root EBS volume**.
+
+### ⚙️ Requirements
+- The **root EBS volume must be encrypted** 🔐
+
+### 🕒 Limitations
+- Hibernate cannot last more than **60 days**
+
+### 🚀 Benefits
+- Faster boot time than stopping/starting instances
+- Useful for **long-running processes** or **services that take time to initialize**
+
+---
