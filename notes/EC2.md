@@ -138,6 +138,7 @@ Browser-based SSH access directly from the AWS Console (requires proper SSH rule
   - One-time: When acquire instance: ends the request.
   - Persistent: When instance is interrupted, the Spot Request will be recreated.
   - Cancel of Spot Requests will **NOT** stop instances. May fall in a **loop**!
+  - The Role should have the `AmazonEC2SpotFleetTaggingRole` service role and allow the `spotfleet.amazonaws.com` service assume the role.
 - **Spot Blocks:** Reserve for 1–6 hours (guaranteed availability)
 
 ### 🧠 Spot Fleet
@@ -200,7 +201,7 @@ They help you control **latency**, **fault tolerance**, and **throughput**.
 | **Spread** | Spreads instances across different hardware to reduce failure risk (max 7 instances per group per AZ). | Critical workloads needing high availability and fault tolerance. |
 | **Partition** | Distributes instances across multiple partitions (different racks/machines) within an AZ. Each partition is isolated from others. Up to 100 EC2 per group, up to 7 particions per AZ | Large-scale systems like Cassandra or Apache Kafka that need redundancy. |
 
-> 🧩 **AZ failure in a Cluster Group** means all instances in that group fail too.
+> 🧩 **AZ failure in a Cluster Group** means all instances in that group fail too.  
 > Can get partition information from Metadata service.
 
 ---
@@ -220,7 +221,7 @@ An **Elastic Network Interface (ENI)** represents a **virtual network card** (li
 - You can **attach or detach** ENIs between instances.
 
 ### 🧠 Use Case Example
-> If an instance fails, launch a new one and attach the same ENI — traffic continues smoothly without reconfiguration.
+> If an instance fails, launch a new one and attach the same ENI — traffic continues smoothly without reconfiguration.  
 > Same for MAC-based licensing
 
 ---
