@@ -133,62 +133,97 @@ Ensures that the **same client** is always routed to the **same instance** behin
 
 ---
 
-SSL/TLS certificates
+## 🔐 SSL / TLS Certificates
 
-allow for traffic to be encrypted in transit (in flight)
+Allow traffic to be **encrypted in-transit** (in-flight) for secure communication.
 
-SSL Secure sockets layer
-TLS Transport layer security (its the newer version, mainly used but people keep saying them SSL)
+### 🔒 Concepts
+- **SSL (Secure Sockets Layer)** → older protocol  
+- **TLS (Transport Layer Security)** → newer, modern version. Community still refer to this as SSL.  
+- Certificates are **X.509** protocol  
+- Managed via **AWS Certificate Manager (ACM)**
 
-public SSL Certificates are issued by Certificate Authorities (CA) (GoDaddy, Letsencrypt, etc.)
+### 🧾 Certificate Management
+- Obtain from **Certificate Authorities (CA)** (e.g., Let’s Encrypt, GoDaddy)
+- Upload our own or generate in **ACM**
+- Attach to **HTTPS listeners** on load balancers
+- Support for **multiple SSL certificates** via **SNI (Server Name Indication)**
 
-load balancer uses a X.509 certificate
-we can manage certificates from ACM (AWS CERTIFICATE MANAGER)
- we can create and upload our own certificates
- clients in https listener can use sni server name indication to specify the hostname they reach
+> 💡 Example:  
+> `api.movies.com` and `movies.com` can each have **different SSL certificates** served by the same ALB thanks to the SNI.
 
-multiple ssl certificates
-sni solves this problems
+---
 
-basically api.movies.com and movies.com can have different certificate???
+## ⏳ Connection Draining (Deregistration Delay)
 
---
+Allows active connections to **complete gracefully** before an instance is removed from the load balancer (unhealthy).
 
-connection draining / deregistration delay
+- ELB **stops sending new requests** to a draining instance
+- **Waits** for existing connections to finish
+- Prevents user disruption during scaling or maintenance
 
-basically the elb tries to forward a request to an instance but the instance is in unhealthy (draining) so the elb wait for that so it stop sending new requests to the instance which is deregistering
+### ⚙️ Configuration
+- Range: **0–3600 seconds**  
+- Default: **300 seconds (5 minutes)**
 
-its like giving some times to already connected clients before the instance be shutdown because its marked as unhealth????
+---
 
-we can set that delay:
+## 🚀 Auto Scaling Groups (ASG)
 
-we can set from 0 (disabled) to 3600 seconds (default 300 seconds 5 minutes)
+Automatically adjusts the **number of EC2 instances** to meet current demand.
 
---
+### ⚙️ Key Features
+- **Scale out** to handle increased load  
+- **Scale in** to reduce capacity  
+- Automatically **registers new instances** to load balancers  
+- **Recreates** unhealthy instances  
+- **Free** AWS service (you only pay for EC2 instances)
 
-Auto scaling group (asg)
-scale out ec2 instances to match increased load
-scale in to decreased load
-automatically register new instances to load balancer
-recreate instance if old is unhealthy
-its free!!!
+---
 
-launch template: AMI, instance type, ec2 user data, ebs volumes, security groups, ssh key pair, iam roles , network , load balancer information
-min size, max size, initial capacity (desired)
-scaling policies
+## 🧱 Launch Template Configuration
+Contains settings used by ASG:
+- AMI ID  
+- Instance Type  
+- EC2 User Data  
+- EBS Volumes  
+- Security Groups  
+- SSH Key Pair  
+- IAM Role  
+- Network Settings  
+- Load Balancer Association  
 
-possible to scale ASG based on CloudWatch alarms
-(a metric like Average CPU)
+### 📊 Scaling Configuration
+- **Minimum size**
+- **Maximum size**
+- **Desired capacity (initial instances)**
 
-scaling policies
-* dynamic scaling (based on alarms/metrics (target tracking, simple, step scaling))
-* scheduled scaling (increase capacity on saturday)
-* predictive scaling (asg will analyse data and forecast what u need)
+---
 
-scaling cooldown
-default 300 seconds 
+## 📈 Scaling Policies
 
-during the cooldown asg will not launch or ternimate instances to allow for metrics to stabilize
+### ⚡ Dynamic Scaling
+- Triggered by **CloudWatch alarms** or metrics (e.g., Average CPU Utilization)
+- Types:
+  - **Target Tracking:** Maintain metric at a target value
+  - **Simple Scaling:** Scale when threshold reached
+  - **Step Scaling:** Scale by steps based on metric levels
 
-advice: use ready-to-use amis to reduce configuration time in order to serve request faster and reduce cooldown period
+### 🗓️ Scheduled Scaling
+- Triggered at **specific times** (e.g., increase capacity on weekends)
 
+### 🔮 Predictive Scaling
+- Uses **machine learning** to forecast capacity needs based on past trends/data.
+
+---
+
+## 🧘 Scaling Cooldown
+
+- Period during which ASG **pauses scaling actions** (default **300 seconds**)
+- Prevents launch or termination of instances to allow metrics to stabilize.
+
+> 💡 **Tip:** Use **preconfigured AMIs** to reduce instance initialization time, serve traffic faster, and shorten cooldown periods.
+
+---
+
+✨ **Final Tip:** Combine **Load Balancers**, **Auto Scaling**, and **multi-AZ deployment** to achieve a fault-tolerant, self-healing, and highly available AWS infrastructure.
