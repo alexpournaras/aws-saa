@@ -179,3 +179,13 @@ A **managed network file system (NFS)** for **shared access** across multiple EC
 > EFS can leverage storage tiers for cost savings.  
 
 ---
+
+## Format EBS
+
+```bash
+lsblk #see all disks
+sudo mkfs -t ext4 /dev/nvme1n1 #format disk to ext4
+sudo mkdir /data
+sudo mount /dev/nvme1n1 /data #mount formatted disk
+df -h #verify disk is working
+```
