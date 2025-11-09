@@ -84,7 +84,7 @@ app.mydomain.com => blabla.anything.com
 * cant set ttl. aws does it automatically
 
 alias records targets:
-* elastic load balancers
+* elastic load balancers (very usefull, important!!!!)
 * cloudfront distributions
 * api gateway
 * elastic beanstack environments
@@ -226,7 +226,7 @@ routing policies - multivalue
 * route 53 will also return multiple values/resources
 * can be associated with health checks (and return only values for healthy resources)
 * up to 8 healthy resoruces are retured for each multivalue query
-* its not substitute for ELB, its like load balacing but in the client side.
+* its not substitute for ELB, its like load balacing but in the client side. (super useful, important!!!!)
 * its different with the simple because thats only returning healthy. also simple doesnt support health checks.
 
 --

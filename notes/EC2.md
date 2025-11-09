@@ -126,7 +126,7 @@ Browser-based SSH access directly from the AWS Console (requires proper SSH rule
 | ⚡ **Spot Instances** | Up to 90% cheaper | Fault-tolerant, flexible workloads | Can be interrupted anytime |
 | 🧱 **Dedicated Hosts** | Entire physical server | Compliance or license restrictions | Most expensive, Bring Your Own License (BYOL) |
 | 🔒 **Dedicated Instances** | Hardware not shared with other customers | Security or compliance |  |
-| 📍 **Capacity Reservations** | Reserve capacity in a specific AZ | On-demand flexibility | Pay for reserved capacity and use whenever we want |
+| 📍 **Capacity Reservations** | Reserve capacity in a specific AZ | On-demand flexibility | Pay for reserved capacity and use whenever we want. Example: we use auto-scaling and we know there is always a need for at least 2 instances running all the time. |
 
 ---
 

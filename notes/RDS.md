@@ -198,7 +198,8 @@ For long stops → **snapshot**, then **restore when needed**.
 - Attempt to find in cache → Cache miss → fetch from DB (e.g., RDS) → **write to cache**
 
 **Session example:** With a load balancer, a user may hit different instances.  
-Store sessions in ElastiCache → sessions are available everywhere.
+* Store sessions in ElastiCache → sessions are available everywhere.
+* ELB with sticky sessions could solve the problem but what if an instance fail? That's why ElastiCache is a better option for that.
 
 ## 🔥 Redis
 - **Multi-AZ** with **auto-failover**

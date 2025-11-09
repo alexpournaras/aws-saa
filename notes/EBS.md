@@ -40,7 +40,7 @@ EBS Snapshots are **incremental backups** of your EBS volumes.
 
 An **AMI** is a **preconfigured image** used to launch EC2 instances with custom software and settings.
 
-With AMIs we can create our own software, configurations, OS, monitoring, etc, and have **way faster** boot with our software pre-packed.
+`Golden AMIs`: With AMIs we can create our own software, configurations, OS, monitoring, etc, and have **way faster** boot with our software pre-packed.
 
 ### 📦 Types of AMIs
 - 🟢 **Public AMIs** (provided by AWS)
@@ -115,9 +115,11 @@ A **managed network file system (NFS)** for **shared access** across multiple EC
 - Can be **encrypted with KMS**
 - Fully **POSIX-compliant** (behaves like a Linux file system with API)
 - Can scale automatically, no need to specify how much capacity we need.
-- Use cases: Content management, web serving, data sharing, WordPress, etc.
+- Use cases: Content management, web serving, data sharing, WordPress, distributed applications (maybe with ELB) etc.
 
 > EFS allows mounting the same file system across multiple EC2 instances in **different AZs**.
+
+> EFS basically **creates ENIs** in each AZ and then our instances can use these ENIs to access the shared EFS data.
 
 ### 📈 Scalability
 - Supports **1000s of NFS clients** concurrently

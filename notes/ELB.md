@@ -226,4 +226,4 @@ Contains settings used by ASG:
 
 ---
 
-✨ **Final Tip:** Combine **Load Balancers**, **Auto Scaling**, and **multi-AZ deployment** to achieve a fault-tolerant, self-healing, and highly available AWS infrastructure.
+✨ **Final Tip:** Combine **Load Balancers**, **Auto Scaling**, and **multi-AZ deployment** to achieve a fault-tolerant, self-healing, and highly available AWS infrastructure. Use capacity reserved EC2 instances to reduce costs when we know the number of the minimum of EC2 instances that we always want to run.
