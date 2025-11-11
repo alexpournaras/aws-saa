@@ -188,6 +188,9 @@ For long stops → **snapshot**, then **restore when needed**.
 - AWS manages OS, patches, setup, configuration, monitoring, recovery, backups
 - ⚠️ Usually requires heavy **application code changes**
 
+> * Stateless: The app stores session in Redis → Any EC2 instance can handle future requests.
+> * Stateful: The app stores session on its local disk (EBS) → Only that same EC2 instance can continue serving that user.
+
 **Access pattern basics:**
 - **Cache hit** → value found in cache
 - **Cache miss** → Not found in cache.

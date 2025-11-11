@@ -103,8 +103,11 @@ A **Load Balancer** is a service that **forwards incoming traffic** across multi
 Ensures that the **same client** is always routed to the **same instance** behind the load balancer.
 
 - Implemented via **cookies**
-- Prevents session loss for stateful applications
+- Prevents session loss for **stateful** applications
 - May cause **uneven load distribution**
+
+> * Stateless: The app stores session in Redis → Any EC2 instance can handle future requests.
+> * Stateful: The app stores session on its local disk (EBS) → Only that same EC2 instance can continue serving that user.
 
 ### 🍪 Types of Sticky Sessions
 

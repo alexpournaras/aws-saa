@@ -1,59 +1,78 @@
-DNS
-Domain name system which translates the human friendly hostnames into machine IP addresses
+# 🌍 Amazon Route 53 — Complete Notes
 
-Domain Registar: amazon route 53, godaddy, papaki
-top level domain (tld) : .com .gr .org .gov
-second level domain: amazon.com google.com
+**DNS (Domain Name System)** translates **human-friendly hostnames** into **IP addresses** machines understand.
 
-subdomain: [api].amazon.com
+Examples:
+- `google.com` → `142.250.74.46`
+- `example.org` → `93.184.216.34`
 
-local dns server -> asking for example.com -> root dns server (managed by ICANN) -> tld dns server (.com) (managed by IANA) -> SLD DNS Server (example.com) (managed by domain registar like amazon registar etc etc.)
+### DNS Components
+| Level | Example | Description |
+|------|---------|-------------|
+| **TLD (Top-Level Domain)** | `.com`, `.gr`, `.org` | End of domain name |
+| **Second-Level Domain** | `amazon.com`, `google.com` | Name under the TLD |
+| **Subdomain** | `api.amazon.com` | A prefix to further organize zones |
 
---
+### DNS Resolution Path
+Client → Local DNS Resolver → Root DNS → TLD DNS → Authoritative DNS (Hosted Zone) → Response
 
-amazon route 53
+Root servers controlled by **ICANN**, TLD servers by **IANA**, domain-level DNS by **Registrar** (Route 53, GoDaddy, Papaki, etc.)
 
-scalable fully managed and authoritative DNS
-    - authoritative = you can update the DNS records
+---
 
-route 53 is also domain registar
-100% availability sla
-53 is reference to traditional dns port
+## 📡 Amazon Route 53 Overview
 
-the records have:
-* domain/subdomain
-* record type
-* value
-* routing policy (how route 53 respond to queries)
-* ttl
+**Route 53 is:**
+- ✅ **Scalable**, fully managed **DNS**
+- ✅ **Authoritative** (we control records)
+- ✅ Can act as a **Domain Registrar**
+- ✅ **100% SLA** availability
+- 53 refers to the traditional **DNS port (53)**
 
+### Each DNS record contains:
+- **Name** (domain/subdomain)
+- **Record type**
+- **Value** (IP / hostname / resource)
+- **Routing policy** (how Route 53 responds to queries)
+- **TTL** (Time To Live cache duration)
 
-record types that maps a hostname to:
-A => ipv4
-AAAA => ipv6
-CNAME => to another hostname (cant create cname record for top node of a dns namespace zone apex)
-NS => name servers for the hosted zone (control how traffic is routed for a domain)
+---
 
-hosted zones:
-* public: application1.mypublicdomain.com
-* private: application1.company.internal
-0.5$ per month per hostez zone
+## 🧾 DNS Record Types
 
-to register domains at least 12$ per year
+| Type | Purpose | Example |
+|------|---------|---------|
+| **A** | Maps hostname → IPv4 | `api.example.com → 54.2.1.5` |
+| **AAAA** | Maps hostname → IPv6 | `api.example.com → 2001:db8::2` |
+| **CNAME** | Redirects hostname → another hostname | `app.example.com → login.myapp.com` |
+| **NS** | Defines **authoritative name servers** for a zone | Used when delegating domain to Route 53 |
 
-ttl time to live
-basically cache the reponse of the dns server in order to avoid quering again and again.
+⚠️ **CNAME cannot be used at the domain root (zone apex)**  
+Example of domain apex: `example.com`
 
-high ttl (example 24 hours)
-* less traffic on route 53 (less cost)
-* possibly outdated records
+---
 
-low ttl (60 seconds)
-* more traffic to route 53 ($$$)
-* records are outdated for less time
-* easy to change records
+## 🏡 Hosted Zones
 
-its mandatory for each dns record (except alias)
+| Type | Example | Use |
+|------|---------|-----|
+| **Public Hosted Zone** | `app.mydomain.com` | Accessible on the public internet |
+| **Private Hosted Zone** | `db.company.internal` | Only accessible inside a VPC |
+
+💰 Cost: **$0.50/month per hosted zone**  
+Domain registration ≈ **$12/year** minimum
+
+---
+
+## ⏱ TTL (Time To Live)
+How long DNS results are cached.
+
+| TTL | Behavior |
+|------|----------|
+| **High (e.g., 24h)** | Lower cost, but old records persist longer |
+| **Low (e.g., 60s)** | Faster failover & updates, increased DNS query cost |
+
+TTL is **required** for all DNS records **except Alias**.
 
 ```bash
 sudo yum install -y bind-utils
@@ -65,194 +84,213 @@ winget install ISC.Bind
 dig api.example.com
 ```
 
---
+---
 
-CNAME:
-* points a hostname to ANY OTHER hostname
-app.mydomain.com => blabla.anything.com
-* ONLY FOR NON ROOT DOMAIN like something.mydomain.com
+## 🔁 CNAME vs Alias
 
-Alias
-* points a hostname to an AWS RESOURCE
-app.mydomain.com => blabla.anything.com
-* works for ROOT DOMAIN AND NON ROOT DOMAIN
-(like mydomain.com and something.mydomain.com)
-* alias is free and has native health checks
-* its an extension to DNS functionality
-* automatically recognisze changes in the resource's ip addresses
-* its always a type A/AAAA for aws resources
-* cant set ttl. aws does it automatically
+### **CNAME**
+- Maps hostname → **another hostname**
+- ✅ Use for **subdomains only**
+- ❌ Cannot be used at **domain root**
 
-alias records targets:
-* elastic load balancers (very usefull, important!!!!)
-* cloudfront distributions
-* api gateway
-* elastic beanstack environments
-* s3 websites
-* vps interface endpoints
-* global accelerator
-* route 53 record in the same hosted zone
-*** cannot set alias in EC2 DNS NAME!!!!! (important)
+### **Alias (AWS Extension)**
+- Maps hostname → **AWS resources**
+- Works for both **root domain & subdomains**
+- **No TTL** required (AWS manages automatically)
+- **Free & native health checks**
+- Always behaves as **A/AAAA internally**
+- Automatically recognise changes in the resource's ip addresses
 
-domain apex = [example.com]
+### Alias can target:
+- **Elastic Load Balancers** ✅ (very important)
+- **CloudFront**
+- **API Gateway**
+- **Elastic Beanstalk**
+- **S3 Static Websites**
+- **VPC Interface Endpoints**
+- **Global Accelerator**
+- **Other Route 53 records in same zone**
 
-routing policies - simple
+❌ Alias **cannot** target EC2 public DNS names.
 
-* route traffic to a single resource
-* can specify multiple values in the same record
-* if multiple values are returned, a random one is chosen by the CLIENT
-* when alias enabled, specify only one aws resource
-* cant be associated with health checks
-( could be just a simple A record )
+---
 
---
+## 🎯 Routing Policies
 
-routing policies - weighted
+### **Simple Routing**
+- Route traffic to a single resource
+- Can specify multiple values in the same record
+- If multiple values are returned, a random one is chosen by the **client**!
+- ❌ Cannot use health checks (unless Alias)
 
-* control & of the request that go to each resource
-* assign a relative weight to each record
-* the percentage is the weight of this record / against the total weight of all records
-* weights dont need to sum up to 100
-* dns records must have the same name and type
-* can be assosicated with health checks
-* use cases: loadbalancing between regions, testing new application versions
-* assign weight 0 to a record to stop sending traffic
-* if all records wave 0, they will all equally be returned
-* It's a common use case to send part of traffic (like 5%) to a new version of your application to test updates.
+---
 
---
+### **Weighted Routing**
+Control percentage of traffic per resource.
 
-routing policies - latency
+- A record weight 80 → 80% traffic
+-  record weight 20 → 20% traffic
 
-* redirect to the resource that has the least leatency close to us
-* super helpful when latency is priority
-* latency is based on traffic between users and aws regions
-* can be associated with health checks (has a failover capability)
-* latency = response time
+✅ Used for:
+* Gradual deployments
+* A/B Testing
+* Load-balancing between regions
+* Canary releases (**send 5% traffic to new version to test updates**)
 
-tip: when changing my ip with vpn, all ttl are cleared so we can get another response imedeatelly
+* Can be assosicated with health checks
+* Weights don't need to sum up to 100. They are relative
+* The final percentage is the weight of this record / against the total weight of all records
+* Can use **weight = 0** to disable resource without deleting record. If all resources have weight 0, they are all equally returned.
 
---
+---
 
-route 53 health checks
+### **Latency-Based Routing**
+Routes user to the region with **lowest latency**.
 
-* http health checks are only for public resources
-health check => automated dns failover
-- monitoring an endpoint (application, server, other aws resource)
-- monitor other health checks (calculated health checks)
-- monitor cloudwatch alarms. (full control in throttles of dynamodb, alarms on rds, custom metrics) [!!! helpful for private resources]
-* they are integrated with cloudwatch metrics
+* Super helpful when response time is priority
+✅ Perfect for global applications  
+✅ Can be used **with failover (health checks)**
 
-## monitor an endpoint
-* about 15 global helath checkers will check the endpoint
-* failure threshhold (number of times to flagged as failed) (default = 3)
-* intervals 30 sec (can set to 10 sec - higher cost)
-* support http, https and tcp
-* if > 18% report helaty endpoint, route 53 will consider it healthy.
-* choose which locations route 53 to use.
-* checks are passed with 2xx and 3xx status codes
-* can be set to check texts to the first 5120 bytes of the response
-* configure router/firewall to allow incomng requests from route 53 health checkers (its a specific ip range.)
+> When changing my IP with VPN, all TTL are cleared so we can get another response immediately.
 
-## calculated health checks
-* combine results of multiple health checks to a single one. (its like the parent and can monitor other child health checks)
-* monitor up to 256 child health checks
-* can be: 
-    - at least X of Y health checks are healthy,
-    - ALL health checks are healthy (AND),
-    - one or more health checks are healthy (OR)
-* specify how many health checks need to pass to make parent pass
-* usage: perform maintance to website without causing all health checks to fail
+---
 
-## private hosted zone
-* health checks are outside of the vpc so they cannot access privatte endpoints
-* but we can create cloudwatch metrics and assiciate cloudwatch alarms, then the health check can check this alarm.
+## ❤️ Route 53 Health Checks
 
---
+Used for **automated DNS failover**.
 
-routing policies - failover 
+### Health Check Types
+| Type | Works With | Notes |
+|------|------------|-------|
+| **Endpoint checks** | Public endpoints | 15 global checkers verify |
+| **Calculated Check** | Combines results of others | AND/OR/“N of M healthy” logic |
+| **CloudWatch Alarm Check** | Private resources | Works when endpoint is inside VPC |
 
-* basically they work with health checks,
-* one record is primary, another is secondary
-* based on the health check the traffic will go to the corresponding record
+### Endpoint Health Checks
+- Default check interval: **30s** (can reduce to **10s** → higher cost)
+- Failure threshold (number of times to be flagged as failed) (default = 3)
+- Checks **HTTP, HTTPS, TCP**
+- Must allow Route 53 health checkers IP ranges on firewall (they are specific)
+- If > 18% report healthy endpoint, Route 53 will consider it healthy.
+- Choose which locations Route 53 to use.
+- Checks are passed with 2xx and 3xx status codes
+- Can be set to check texts to the first 5120 bytes of the response.
+
+---
+
+### Calculated Health Checks
+Combine up to **256** health checks.  
+- It's like the parent that monitors child health checks
+- Specify how many health checks need to pass to make parent pass
+
+- At least X of Y health checks are healthy,
+- ALL health checks are healthy,
+- One or more health checks are healthy
+
+Useful for:
+- Maintenance windows without causing all health checks to fail
+- Aggregated service health
+
+### Private Hosted Zone
+* Health checks are outside of the VPC so they cannot access private endpoints.
+* But we can create CloudWatch Metrics and associate CloudWatch alarms, then the health check can check these alarms.
+* Full control in throttles of DynamoDB, alarms on RDS, custom metrics, etc.
+
+---
+
+## 🩺 **Failover Routing**
+* Basically they work with health checks,
+* One record is primary, the other is secondary
+* Based on the health check, the traffic will go to the corresponding record
 * You can create only one failover record of each type.
 
---
+---
 
-routing policies - geolocation
+### **Geolocation Routing**
+Routes based on **user’s location**.
 
-* the routing is based on the user location
-* specify continent, country, us state
-* should create a 'Default' record when there is no match
-* use cases: website localization, retrict content distribution, load balancing etc.
-* can be associated with health checks
+* Specify continent, country, or even a US State
+* Use cases: website localization, retrict content distribution, load balancing etc.
+* Can be associated with health checks
 
--- 
+Requires **Default** record for unmatched traffic.
 
-routing policies - geoproximity
+---
 
-* based on geographic location of users and resources
-* ability to shift more traffic to resources based on the defined 'bias' and location
-* change size of geographic region with 'bias' value. to 1 to 99 to expand, -1 to -99 to shrink
+### **Geoproximity Routing**
+Routes based on **location + adjustable bias**.
+* Ability to shift more traffic to resources based on the defined 'bias' and location
 
-resources can be:
-* aws resources( aws region)
-* non-aws resources (specify latitude and logitude)
-* use feature traffic flow
+Bias:
+- Positive → **Expand region** 1 to 99
+- Negative → **Shrink region** -1 to -99
 
---
+Resources can be:
+* AWS Resources(AWS Region)
+* Non-AWS Resources (specify latitude and longitude)
+* Use feature traffic flow
 
-routing policies - ip based routing
+---
 
-* routing is based on clients ip address
-* you provide a list of CIDRs for your clients (ip ranges) and map them to locations
-* use cases: optimize performance, reduce network costs, route user from particular ISP to specific endpoint
+### **IP-Based Routing**
+Map **IP ranges (CIDRs)** → specific endpoints.
 
-example:
-Route 53 -> CIDR Collection
+```
+Example:
+Route 53 -> CIDR Collection:
+203.0.113.0/24 → location 1
+200.5.4.0/24 → location 2
 
-location 1 -> 203.0.113.0/24
-location 2 -> 200.5.4.0/24
-
-records:
+Records:
 example.com -> 1.2.3.4 -> location 1
 example.com -> 5.6.7.8 -> location 2
+```
 
---
+* Routing is based on client's IP address
+* Use cases: optimize performance, reduce network costs, route user from particular ISP to a specific endpoint.
 
-routing policies - multivalue
+---
 
-* route triffic to multiple resources
-* route 53 will also return multiple values/resources
-* can be associated with health checks (and return only values for healthy resources)
-* up to 8 healthy resoruces are retured for each multivalue query
-* its not substitute for ELB, its like load balacing but in the client side. (super useful, important!!!!)
-* its different with the simple because thats only returning healthy. also simple doesnt support health checks.
+### **Multivalue Routing**
+* Route traffic to multiple resources
+- Responds with **multiple IPs**
+- Acts like **client-side load balancing**
+- Returns **Up to 8** healthy records
+- ✅ Supports health checks (return only values for healthy resources)
+- ❌ Not a replacement for ELB, but still useful
+- It's different from the simple policy, because it only returns healthy resources. Also simple ones, do NOT support health checks.
 
---
+---
 
-domain registar vs dns service
+## Domain Registrar vs DNS Service
+* The Domain Registars usually provide us with a DNS service to manage our DNS records.
+* But we can **buy a domain** in one place and **host DNS** somewhere else.
 
-* the domain registars usually provide us with a dns service to manage our dns records
-* but we can use another dns service to manage our dns records
-* example we buy a domain from a 3rd pary website (godaddy) but we use route 53 to manage our dns records
+Example:
+- Domain registered in **GoDaddy**
+- DNS hosted in **Route 53**
 
-to do that: we create a hosted zone in route 53
-and then update the nameserver records on 3rd party website with the ones route 53 gave us.
+To do this:
+1. Create hosted zone in Route 53
+2. Replace GoDaddy NS records with Route 53 NS values
 
--- 
+---
 
-hybrid dns
+## 🔗 Hybrid DNS (On-Prem + AWS)
 
-route 53 resolver answers dns queris for
-* local domain names for ec2 instances
-* records in private hosted zones
-* records in public name servers
+**Route 53 Resolver** handles private & on-prem DNS. Anwsers queries for:
+* Local domain names for EC2 instances
+* Records in private hosted zones
+* Records in public NameServers
 
-hybrid dns: resolving dns queries beween vps (route 53 resolver) and networks (other dns resolvers)
+Hybrid DNS: Resolving DNS queries beween VPS (Route 53 resolver) and networks (other DNS resolvers)
 
-networks can be: vpc itself / peered vps or on-premises network connected through direct connect or aws vpn
+Networks can be: VPC itself / Peered VPS or on-premises network connected through direct connect or AWS VPN
 
-inbound endpoint = we create such an endpoint to be able to listen for dns queries from outside (on premises data center). basically resolve domain names for aws resources (ec2 instances) and records in private hosted zones
+### Endpoints:
+| Type | Purpose |
+|------|---------|
+| **Inbound Endpoint** | On-prem → Resolve **AWS private** DNS. Listen to queries from outside. |
+| **Outbound Endpoint** | AWS → Resolve **on-prem** DNS. Forward queries to DNS Resolvers on the on-premices data center. |
 
-outbound endpoint => the oppsosite. the resolver endpoint will forward the dns query to the dns resolvers on the onpremises data center.
+---
