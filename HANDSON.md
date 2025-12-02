@@ -4,3 +4,7 @@
 ## s3 access points
 ## s3 object lambda
 ## s3 ojbect lambda access point
+
+## cloudfront multi-tenant architecture
+## cloudfront origin custom
+## cloudfront WAF firewall
