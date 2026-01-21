@@ -64,3 +64,30 @@ Create Application → Upload Application Version → Deploy to Environment → 
 ---
 
 Elastic Beanstalk is especially useful for **developers who want fast deployments without managing infrastructure**, while still maintaining the option to customize configurations when needed.
+
+---
+
+# AWS Snowball
+
+Highly secure portable devices used to **collect and process data at the edge**.
+
+- Helps migrate data **up to petabytes**
+- Uploading huge datasets over the network can take too long, so we use these **physical devices** (like a big box/server), load the data locally, and **ship it back to AWS** so it can be processed there.
+- Good for:
+  - Locations with **limited internet**
+  - Locations with **no access to computing power**
+- Supports running compute workloads such as:
+  - **EC2 instances**
+  - **Lambda functions**
+- Use cases:
+  - **Preprocess data**
+  - **Machine learning**
+  - **Transcoding media**
+- Device types:
+  - **Storage optimized**
+  - **Compute optimized**
+- Imports data into **Amazon S3**
+  - If we want to move data to **Amazon Glacier**, we first import to **S3**, then use **S3 Lifecycle Policies** to transition it to Glacier.
+- We can **process data while the device is in transit**
+
+---

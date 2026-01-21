@@ -191,3 +191,180 @@ sudo mkdir /data
 sudo mount /dev/nvme1n1 /data #mount formatted disk
 df -h #verify disk is working
 ```
+
+---
+
+# AWS FSx
+
+High-performance file systems.
+
+## FSx for Windows File Server
+
+- Uses **SMB** and **NTFS** protocols
+- Supports:
+  - **Microsoft Active Directory**
+  - **ACLs**
+  - **User quotas**
+- Can be mounted on **Linux EC2**
+- Supports **DFS** (Distributed File System)
+- Can be accessed with a **VPN**
+- Can be **Multi-AZ**
+- Data is backed up **daily to S3**
+
+## FSx for Lustre (Linux + cluster)
+
+- Designed for:
+  - **Machine learning**
+  - **High-performance computing (HPC)**
+- Seamless integration with **Amazon S3**
+- Can write output of computations back to **S3**
+- Can be accessed with a **VPN**
+
+### Deployment options
+
+#### Scratch file system
+- Temporary
+- Data is **not replicated**
+
+#### Persistent file system
+- Long term
+- Data is replicated **within the same AZ**
+
+## FSx for NetApp ONTAP
+
+- Protocols:
+  - **NFS**
+  - **SMB**
+  - **iSCSI**
+- Useful for moving **ONTAP / NAS to AWS**
+- Broad compatibility:
+  - Linux, Windows, macOS, VMware, EC2, ECS, EKS etc.
+- Storage **shrinks or grows automatically**
+- Features:
+  - **Snapshots**
+  - **Replication**
+  - **Compression**
+  - **Data de-duplication** (remove of duplications)
+- Low cost
+- **Point-in-time instantaneous cloning**
+
+## FSx for OpenZFS
+
+- Supports NFS:
+  - **v3**
+  - **v4**
+  - **v4.1**
+  - **v4.2**
+- Useful for moving **ZFS to AWS**
+- Broad compatibility:
+  - Linux, Windows, macOS, VMware, EC2, ECS, EKS etc.
+- Features:
+  - **Snapshots**
+  - **Compression**
+- Low cost
+- **Point-in-time instantaneous cloning**
+
+---
+
+# Hybrid Cloud Storage (AWS Storage Gateway)
+
+AWS is pushing for **hybrid cloud**.
+
+Hybrid cloud = part of the infrastructure is in the cloud, and part of the infrastructure is **on-premises**.
+
+For this job: **AWS Storage Gateway** is used as a bridge between **on-premises** and **cloud data**.
+
+Use cases:
+- Disaster recovery
+- Backup
+- Extra storage
+- On-premises cache
+
+## Amazon S3 File Gateway
+
+- Makes **S3 buckets accessible** using:
+  - **NFS**
+  - **SMB**
+- Most recently used data are **cached** in the file gateway
+- Can transition to **S3 Glacier** using **Lifecycle Policies**
+- Bucket access uses **IAM roles** for each file gateway
+- SMB supports integration with **Active Directory** for user authentication
+
+## Volume Gateway
+
+Provides **block storage** using the **iSCSI** protocol backed by **S3**.
+
+- Backed by **EBS snapshots** (important!)
+  - Helps restore on-premises volumes
+- Flow:
+  - Application server (on-premises) → Volume Gateway (on-premises) → S3 → EBS
+- Cached volumes:
+  - Low latency access to most recent data
+- Stored volumes:
+  - Entire dataset is on-premises
+  - Scheduled backups to S3
+
+## Tape Gateway
+
+- Used for backups that previously relied on **physical tapes**
+- Provides a **Virtual Tape Library (VTL)**
+- Uses **iSCSI** protocol
+
+---
+
+# AWS Transfer Family
+
+Fully managed service for file transfers into and out of **Amazon S3** or **Amazon EFS** using FTP-based protocols.
+
+- Protocols:
+  - **FTP**
+  - **SFTP**
+  - **FTPS**
+- Scalable, reliable, highly available (**Multi-AZ**)
+- Pricing:
+  - Pay per provisioned endpoint per hour
+  - + data transfers in GB
+- Store and manage user credentials within the service
+- Can integrate with existing authentication systems:
+  - Microsoft Active Directory
+  - LDAP
+  - Okta
+  - Cognito
+- Use cases:
+  - Sharing files
+  - Public datasets
+  - CRM / ERP integrations
+
+---
+
+# AWS DataSync
+
+Moves large amounts of data to and from:
+
+- On-premises (**requires DataSync agent**)
+- AWS to AWS (**no agent needed**)
+
+Synchronizes data between:
+- **Amazon S3**
+- **Amazon EFS**
+- **Amazon FSx**
+- (Not EBS)
+
+Other key points:
+- Replication tasks can be scheduled:
+  - Hourly
+  - Daily
+  - Weekly
+- File permissions and metadata are preserved (**important**):
+  - NFS POSIX
+  - SMB
+- One agent task can use up to **10 Gbps**
+  - We should configure a **bandwidth limit** if needed
+
+If we don’t have enough network capacity:
+- Use **AWS Snowcone**
+  - Has the agent preinstalled
+  - It’s a physical device and we ship it back to AWS
+
+---
+
