@@ -34,16 +34,7 @@ we can have multiple consumers and multiple produces, therefore:
 example scenario:
 we can use cloudwatch metrics and cloudwatch alarms to work with an autoscaling group that whenever we have a spike on messages in our queue, the auto scaling group can create more backends (consumers) to poll the messages.
 
-sqs security
-
-* HTTPS API
-* KMS keys if needed
-* client-side encryption if clients wants to perform encryption decryption themselfs
-
-access controls: iam polices for sqs api
-SQS Access Policies (similar to S3 bucket policies)
-* usefull for cross-acount access
-* usefull for allowing other services (SNS, S3 etc) to write to an sqs queue
+---
 
 sqs message visibility timeout
 
@@ -67,3 +58,91 @@ fifo = first in first out (ordering of messages in queue)
 * limited thorughput 300 msg/s (3000 msg/s with batching)
 * exactly-once send capability (by removing duplicates using deduplication ID = basically it auto removes duplicated ids within 5 minutes) (content-based deduplication)
 * ordering by message group ID (all messages in the same group are ordered)
+
+---
+
+amazon SNS (Simple Notification Service)
+
+to send one message to many receivers there is the pub/sub pattern.
+
+* the "event producer" ony sends a message/notification to one SNS topic and all subscribers "event receivers" for this topic will receive it. (we can filter here)
+* up to 12 millions subscribtions per topic
+* 100.000 topics limit per account
+
+subscribers can be: emails, SMS, mobile notifications, http(s) endpoints, SQS, Lambda, Kinesis Data Firehose, etc.
+
+the producers can be any service that can produce notifications. like cloudwatch alarms, auto scaling group, s3 bucket events, rds events, aws budgets, lambdas, etc.
+
+to publis we need SDK
+* create topic, create subscriptions, publish topic
+* "direct publish" => its for mobile apps SDK
+    - create platform application, create platform endpoint, publish to platform endpoint
+    - works with google gcm, apple apns, amazon adm (different ways of our mobile applications to receive notifications)
+
+message filtering
+* json policy used to filter messages sent to sns topic's subscriptions
+
+---
+
+sns + sqs fan out pattern
+
+* push once in sns topic, many sqs queues are subscribed to that topic 
+* data persistences, delayed processing, retries of work
+* ability to add more sqs subsribers over time
+* make sure we configured the access policies
+* cross-region delivery works with sqs queues in other regions
+* other services can also subscribe to this topic and apply the fan out pattern. like lambda functions or kinesis data firehose (kdf)
+
+---
+
+amazon sns fifo topic
+
+fifo = first in first out (ordering of messages in topic)
+
+* limited thorughput 300 msg/s (3000 msg/s with batching)
+* exactly-once send capability (by removing duplicates using deduplication ID = basically it auto removes duplicated ids within 5 minutes) (content-based deduplication)
+* ordering by message group ID (all messages in the same group are ordered)
+* only sqs as subscribers but can use both standard and fifo queues.
+
+--- 
+
+SQS & SNS security
+
+* HTTPS API
+* KMS keys if needed
+* client-side encryption if clients wants to perform encryption decryption themselfs
+
+access controls: iam polices for SQS/SNS api
+SQS/SNS Access Policies (similar to S3 bucket policies)
+* usefull for cross-acount access
+* usefull for allowing other services (SNS/SQS, S3 etc) to write to an SQS Queue / SNS Topic
+
+---
+
+amazon kinesis data streams
+
+* collect and store streaming data in *real-time*
+real time data (iot devices) -> producers (applications, kinesis agent) -> kinesis data streams -> consumers (applications, lambda, amazon data firehose, etc.)
+* retention between up to 365 days
+* ability to reprocess (replay) data by consumers
+* data can't be deleted from kinesis until expiration
+* data up to 10 mib (we want lots of small real time data)
+* kms and https encryption
+* data ordering guarantee for data with the same "partition id"
+* libraries: kinesis producer library (kpl), kinesis client library (kcl)
+
+* on-demand mode:
+    - no need to provision or manage capacity of shards
+    - default capacity provisioned (4mb/s in or 4000 records per second)
+    - scales automatically based on observed throughput peak during last 30 days
+    - pay per stream per hour & data in/out per GB
+
+* provisioned mode:
+    - choose number of shards
+    - each gets 1mb/s in (or 1000 records per second)
+    - each gets 2mb/s out
+    - scale manually
+    - pay per shard provisioned per hour
+
+---
+
