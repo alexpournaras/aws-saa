@@ -69,7 +69,7 @@ to send one message to many receivers there is the pub/sub pattern.
 * up to 12 millions subscribtions per topic
 * 100.000 topics limit per account
 
-subscribers can be: emails, SMS, mobile notifications, http(s) endpoints, SQS, Lambda, Kinesis Data Firehose, etc.
+subscribers can be: emails, SMS, mobile notifications, http(s) endpoints, SQS, Lambda, Kinesis Data Firehose, etc. (not kinesis data streams!!!)
 
 the producers can be any service that can produce notifications. like cloudwatch alarms, auto scaling group, s3 bucket events, rds events, aws budgets, lambdas, etc.
 
@@ -146,3 +146,63 @@ real time data (iot devices) -> producers (applications, kinesis agent) -> kines
 
 ---
 
+amazon data firehose
+
+producers:
+    - applications
+    - sdk
+    - kinesis agent
+    - kinesis data streams
+    - amazon cloudwatch logs and events
+    - aws iot
+
+* automatic scaling, serverless, pay for what you use
+* near real-time
+* records sent should be up to 1mb
+* we can do data transformations with lambda function (csv -> json for example)
+* can set all or just failed data to be savd on an s3 backup bucket
+* batch writes to destinations (buffering based on size/time)!!!
+* support csv, json parquet, avro, raw text, binary data
+* conversions to parquet/orc, compressions with gzip/snappy
+* no data storage
+* no replay capability
+
+destinations:
+    - aws destinations: s3, amazon redshift (analytics), amazon opensearch (elasticsearch)
+    - 3rd party: datadog, splunk, new relic, mongodb
+    - custom: http endpoint api
+
+---
+
+sqs vs sns vs kinesis
+
+* sqs
+    - consumer pulls data
+    - consumers delete the data
+    - no need to provision
+    - ordering guarantees only on FIFO queues
+
+* sns
+    - push data to consumers
+    - data not persisted, lost if not delivered
+    - no need to provision
+
+* kinesis
+    - standard: consumers pull data
+    - enchanced-fan out: push data to consumers
+    - data expires after X days
+    - provisioned mode or on-demand mode
+    - for real-time big data, analytics and ETL
+    - possibility to replay data
+    - ordering on shard level
+
+---
+
+Amazon MQ
+
+* to use traditional applications on premises we use open protocols such as: MQTT, AMQP, STOMP, Openwire, WSS
+* Amazon MQ works with these protocols
+* its a manged message broker service for RabbitMQ and ActiveMQ
+* it doesnt scale as much as SQS or SNS
+* it runs on servers, can run in multi-az with failover capabilities when mounted with Amazon EFS
+* it has both queue features (SQS) and topic features (SNS)
